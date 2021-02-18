@@ -29,7 +29,6 @@ func dataSourceIngressesRead(ctx context.Context, d *schema.ResourceData, m inte
 	if ingressesError != nil {
 		diags = append(diags, diag.FromErr(ingressesError)...)
 		diags = append(diags, diag.FromErr(errors.New("error listing ingresses"))...)
-		diags = append(diags, diag.FromErr(errors.New(fmt.Sprintf("k8sClient.HostURL: %s", k8sClient.HostURL)))...)
 		return diags
 	}
 

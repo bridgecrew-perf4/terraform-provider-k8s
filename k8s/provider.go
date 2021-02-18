@@ -75,10 +75,25 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	context_name := d.Get("context_name").(string)
 	user_name := d.Get("user_name").(string)
 	api_host := d.Get("api_host").(string)
-	client_authority := d.Get("client_certificate_authority").(string)
+	client_certificate_authority := d.Get("client_certificate_authority").(string)
 	client_certificate_data := d.Get("client_certificate_data").(string)
 	client_key_data := d.Get("client_key_data").(string)
 	token := d.Get("token").(string)
+
+	//errorMessage := fmt.Sprintf("kubeconfig: %s\n", kubeconfig) +
+	//	fmt.Sprintf("cluster_name: %s\n", cluster_name) +
+	//	fmt.Sprintf("context_name: %s\n", context_name) +
+	//	fmt.Sprintf("user_name: %s\n", user_name) +
+	//	fmt.Sprintf("api_host: %s\n", api_host) +
+	//	fmt.Sprintf("client_certificate_authority: %s\n", client_certificate_authority) +
+	//	fmt.Sprintf("client_certificate_data: %s\n", client_certificate_data) +
+	//	fmt.Sprintf("client_key_data: %s\n", client_key_data) +
+	//	fmt.Sprintf("token: %s\n", token)
+	//
+	//diags = append(diags, diag.FromErr(errors.New("DEBUG"))...)
+	//diags = append(diags, diag.FromErr(errors.New(errorMessage))...)
+	//
+	//return nil, diags
 
 	if kubeconfig != ""  {
 		//diags = append(diags, diag.FromErr(errors.New("kubeconfig init"))...)
@@ -96,16 +111,16 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 		context_name != "" &&
 		user_name != "" &&
 		api_host != "" &&
-		client_authority != "" &&
+		client_certificate_authority != "" &&
 		client_certificate_data != "" &&
 		client_key_data != "" &&
 		token != "" {
 
-		clientset, clientsetError := k8s_client_go.NewClientFromKubeCreds(cluster_name, context_name, user_name, api_host, client_authority, client_certificate_data, client_key_data, token)
+		clientset, clientsetError := k8s_client_go.NewClientFromKubeCreds(cluster_name, context_name, user_name, api_host, client_certificate_authority, client_certificate_data, client_key_data, token)
 
 		if clientsetError != nil {
 			diags = append(diags, diag.FromErr(clientsetError)...)
-			diags = append(diags, diag.FromErr(errors.New("init error with cluster_name, context_name, user_name, api_host, client_authority, client_certificate_data, client_key_data, token"))...)
+			diags = append(diags, diag.FromErr(errors.New("init error with cluster_name, context_name, user_name, api_host, client_certificate_authority, client_certificate_data, client_key_data, token"))...)
 
 			return nil, diags
 		}
@@ -113,14 +128,14 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 		return clientset, diags
 	} else if kubeconfig == "" &&
 		api_host != "" &&
-		client_authority != "" &&
+		client_certificate_authority != "" &&
 		token != "" {
 
-		clientset, clientsetError := k8s_client_go.NewClientFromToken(api_host, client_authority, token)
+		clientset, clientsetError := k8s_client_go.NewClientFromToken(api_host, client_certificate_authority, token)
 
 		if clientsetError != nil {
 			diags = append(diags, diag.FromErr(clientsetError)...)
-			diags = append(diags, diag.FromErr(errors.New("init with api_host, client_authority and token failed"))...)
+			diags = append(diags, diag.FromErr(errors.New("init with api_host, client_certificate_authority and token failed"))...)
 			return nil, diags
 		}
 
@@ -131,7 +146,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 			fmt.Sprintf("context_name: %s\n", context_name) +
 			fmt.Sprintf("user_name: %s\n", user_name) +
 			fmt.Sprintf("api_host: %s\n", api_host) +
-			fmt.Sprintf("client_authority: %s\n", client_authority) +
+			fmt.Sprintf("client_certificate_authority: %s\n", client_certificate_authority) +
 			fmt.Sprintf("client_certificate_data: %s\n", client_certificate_data) +
 			fmt.Sprintf("client_key_data: %s\n", client_key_data) +
 			fmt.Sprintf("token: %s\n", token)
