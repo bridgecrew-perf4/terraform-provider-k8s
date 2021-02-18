@@ -28,6 +28,8 @@ func dataSourceIngressesRead(ctx context.Context, d *schema.ResourceData, m inte
 	ingresses, ingressesError := k8sClient.ListIngresses(namespace.(string))
 	if ingressesError != nil {
 		diags = append(diags, diag.FromErr(ingressesError)...)
+		diags = append(diags, diag.FromErr(errors.New("error listing ingresses"))...)
+		diags = append(diags, diag.FromErr(errors.New(fmt.Sprintf("k8sClient.HostURL: %s", k8sClient.HostURL)))...)
 		return diags
 	}
 
@@ -79,6 +81,7 @@ func dataSourceIngressesRead(ctx context.Context, d *schema.ResourceData, m inte
 
 	if err := d.Set("ingresses", resultIngresses); err != nil {
 		diags = append(diags, diag.FromErr(err)...)
+		diags = append(diags, diag.FromErr(errors.New("error fetching ingresses"))...)
 		return diags
 	}
 

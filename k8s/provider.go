@@ -3,6 +3,7 @@ package k8s
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/supplycom/k8s_client_go"
@@ -99,36 +100,44 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 		client_certificate_data != "" &&
 		client_key_data != "" &&
 		token != "" {
+
 		clientset, clientsetError := k8s_client_go.NewClientFromKubeCreds(cluster_name, context_name, user_name, api_host, client_authority, client_certificate_data, client_key_data, token)
 
 		if clientsetError != nil {
 			diags = append(diags, diag.FromErr(clientsetError)...)
-			diags = append(diags, diag.FromErr(errors.New("new error here"))...)
+			diags = append(diags, diag.FromErr(errors.New("init error with cluster_name, context_name, user_name, api_host, client_authority, client_certificate_data, client_key_data, token"))...)
+
 			return nil, diags
 		}
+
 		return clientset, diags
 	} else if kubeconfig == "" &&
 		api_host != "" &&
 		client_authority != "" &&
 		token != "" {
 
-
 		clientset, clientsetError := k8s_client_go.NewClientFromToken(api_host, client_authority, token)
+
 		if clientsetError != nil {
 			diags = append(diags, diag.FromErr(clientsetError)...)
+			diags = append(diags, diag.FromErr(errors.New("init with api_host, client_authority and token failed"))...)
 			return nil, diags
 		}
 
-		//ingresses, _ := clientset.ListIngresses("supply-ferguson-poc")
-		//diags = append(diags, diag.FromErr(errors.New("token init"))...)
-		//diags = append(diags, diag.FromErr(errors.New(fmt.Sprintf("api_host: %s",api_host)))...)
-		//diags = append(diags, diag.FromErr(errors.New(fmt.Sprintf("client_authority: %s",client_authority)))...)
-		//diags = append(diags, diag.FromErr(errors.New(fmt.Sprintf("token: %s",token)))...)
-		//diags = append(diags, diag.FromErr(errors.New(fmt.Sprintf("ingress count: %d",len(ingresses))))...)
-
 		return clientset, diags
 	} else {
-		diags = append(diags, diag.FromErr(errors.New("no init"))...)
+		errorMessage := fmt.Sprintf("kubeconfig: %s\n", kubeconfig) +
+			fmt.Sprintf("cluster_name: %s\n", cluster_name) +
+			fmt.Sprintf("context_name: %s\n", context_name) +
+			fmt.Sprintf("user_name: %s\n", user_name) +
+			fmt.Sprintf("api_host: %s\n", api_host) +
+			fmt.Sprintf("client_authority: %s\n", client_authority) +
+			fmt.Sprintf("client_certificate_data: %s\n", client_certificate_data) +
+			fmt.Sprintf("client_key_data: %s\n", client_key_data) +
+			fmt.Sprintf("token: %s\n", token)
+
+		diags = append(diags, diag.FromErr(errors.New("no valid init parameters"))...)
+		diags = append(diags, diag.FromErr(errors.New(errorMessage))...)
 		return nil, diags
 	}
 }
