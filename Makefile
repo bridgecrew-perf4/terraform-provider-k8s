@@ -6,7 +6,7 @@ NAMESPACE=devops
 NAME=k8s
 BINARY=terraform-provider-${NAME}
 GOBIN=~/sdk/go1.15.2/bin/go
-VERSION=1.7.1
+VERSION=1.7.7
 OS_ARCH=darwin_amd64
 SHELL=/bin/sh
 
